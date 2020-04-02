@@ -1,0 +1,25 @@
+---
+
+.git-auth: &git-auth
+  username: username
+  password: password
+
+log:
+  json: false
+  level: debug
+  no_color: false
+
+projects:
+  - url: https://github.com/orange-cloudfoundry/cf-wall
+  - url: https://github.com/orange-cloudfoundry/gomod_exporter
+    auth: *git-auth
+
+exporter:
+  interval: 24h
+  path: /metrics
+  namespace: gomod
+
+web:
+  listen: :23352
+  ssl_cert: ""
+  ssl_key: ""
