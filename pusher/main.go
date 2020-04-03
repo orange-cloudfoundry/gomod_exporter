@@ -25,7 +25,7 @@ var (
 )
 
 func main() {
-	kingpin.Version(version.Print("gomod_exporter"))
+	kingpin.Version(version.Print("gomod-pusher"))
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
 

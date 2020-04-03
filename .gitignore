@@ -1,3 +1,5 @@
+.tarballs/
 config.yml
 exporter/exporter
 pusher/pusher
+.build/

@@ -48,7 +48,6 @@ func (a *Analyzer) ProcessProject(config *GitConfig) error {
 	if err != nil {
 		a.metrics.Status.WithLabelValues(config.URL).Set(float64(0))
 		return err
-
 	}
 	main, dependencies := a.extractModule(modules)
 	a.writeMetrics(config, main, dependencies)
