@@ -45,7 +45,9 @@ func main() {
 		log.Warnf("failure will be reported in pushed metrics")
 	}
 
-	if err := pusher.Gatherer(metrics.Registry).Push(); err != nil {
+	pusher.Gatherer(metrics.Registry)
+	pusher.Grouping("project", project.URL)
+	if err := pusher.Add(); err != nil {
 		log.Errorf("unable to push data to gateway: %s", err)
 		os.Exit(1)
 	}
