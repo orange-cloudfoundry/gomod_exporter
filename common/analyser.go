@@ -44,14 +44,17 @@ func (a *Analyzer) RunForever(interval time.Duration) {
 
 // ProcessProject - analyze a single project
 func (a *Analyzer) ProcessProject(config *GitConfig) error {
+	start := time.Now()
 	modules, err := a.analyzeProject(config)
 	if err != nil {
 		a.metrics.Status.WithLabelValues(config.URL).Set(float64(0))
+		a.metrics.Duration.Set(time.Now().Sub(start).Seconds())
 		return err
 	}
 	main, dependencies := a.extractModule(modules)
 	a.writeMetrics(config, main, dependencies)
 	a.metrics.Status.WithLabelValues(config.URL).Set(float64(1))
+	a.metrics.Duration.Set(time.Now().Sub(start).Seconds())
 	return nil
 }
 
