@@ -104,7 +104,7 @@ func (a *Analyzer) getRepository(config *GitConfig, dir string) error {
 func (a *Analyzer) getModules(config *GitConfig, dir string) ([]ModulePublic, error) {
 	config.Entry().Debug("extracting go modules")
 
-	cmd := exec.Command("go", "list", "-u", "-m", "-json", "all")
+	cmd := exec.Command("go", "list", "-u", "-mod=mod", "-m", "-json", "all")
 	cmd.Dir = dir
 	content, err := cmd.Output()
 	if err != nil {
