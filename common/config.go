@@ -3,13 +3,14 @@ package common
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"os"
+
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport/http"
 	"gopkg.in/yaml.v2"
-	"io"
-	"io/ioutil"
-	"os"
 )
 
 // LogConfig -
@@ -38,7 +39,7 @@ func (c *GitConfig) validate() error {
 // Entry - generate log entry for current object
 func (c *GitConfig) Entry() *log.Entry {
 	username := "(no-auth)"
-	if c.Auth != nil {
+	if c.Auth != nil && c.Auth.Username != "" {
 		username = c.Auth.Username
 	}
 	return log.WithFields(log.Fields{

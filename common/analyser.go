@@ -3,14 +3,16 @@ package common
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
-	"gopkg.in/src-d/go-git.v4"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
+	"golang.org/x/mod/semver"
+	"gopkg.in/src-d/go-git.v4"
 )
 
 // Analyzer -
@@ -71,8 +73,8 @@ func (a *Analyzer) writeMetrics(config *GitConfig, main ModulePublic, deps []Mod
 		if cDep.Update != nil {
 			mValue = 1000.0
 			mLatestVersion = cDep.Update.Version
-			if cDep.Time != nil && cDep.Update.Time != nil {
-				mValue = cDep.Update.Time.Sub(*cDep.Time).Hours() / 24.0
+			if cDep.Time != nil && cDep.NextUpdate != nil && cDep.NextUpdate.Time != nil {
+				mValue = time.Now().Sub(*cDep.NextUpdate.Time).Hours() / 24.0
 			}
 		}
 		a.metrics.Deprecated.WithLabelValues(
@@ -101,10 +103,9 @@ func (a *Analyzer) getRepository(config *GitConfig, dir string) error {
 	return nil
 }
 
-func (a *Analyzer) getModules(config *GitConfig, dir string) ([]ModulePublic, error) {
-	config.Entry().Debug("extracting go modules")
-
-	cmd := exec.Command("go", "list", "-u", "-mod=mod", "-m", "-json", "all")
+func (a *Analyzer) getModules(config *GitConfig, dir string, project string) ([]ModulePublic, error) {
+	config.Entry().Debugf("extracting go modules for %s", project)
+	cmd := exec.Command("go", "list", "-versions", "-u", "-mod=mod", "-m", "-json", project)
 	cmd.Dir = dir
 	content, err := cmd.Output()
 	if err != nil {
@@ -158,7 +159,45 @@ func (a *Analyzer) analyzeProject(config *GitConfig) ([]ModulePublic, error) {
 		return nil, err
 	}
 
-	return a.getModules(config, dir)
+	rawModules, err := a.getModules(config, dir, "all")
+	if err != nil {
+		return nil, err
+	}
+
+	for _, cModule := range rawModules {
+		config.Entry().Debugf("analyzing dependency: %s", cModule.Path)
+		if cModule.Update == nil {
+			continue
+		}
+		nextVersion, isLast := a.getNextVersion(&cModule)
+		if isLast {
+			cModule.NextUpdate = cModule.Update
+		} else {
+			name := fmt.Sprintf("%s@%s", cModule.Path, nextVersion)
+			depModule, err := a.getModules(config, dir, name)
+			if err != nil {
+				return nil, err
+			}
+			cModule.NextUpdate = &depModule[0]
+		}
+		config.Entry().Debugf("current: %s, latest: %s, next: %s",
+			cModule.Version,
+			cModule.Update.Version,
+			cModule.NextUpdate.Version,
+		)
+	}
+	return rawModules, nil
+}
+
+func (a *Analyzer) getNextVersion(module *ModulePublic) (string, bool) {
+	current := module.Version
+	for cIdx, cVersion := range module.Versions {
+		if semver.Compare(cVersion, current) > 0 {
+			isLast := (cIdx == (len(module.Versions) - 1))
+			return cVersion, isLast
+		}
+	}
+	return current, false
 }
 
 // Local Variables:
