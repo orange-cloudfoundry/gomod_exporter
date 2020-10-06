@@ -47,20 +47,19 @@ func (a *Analyzer) RunForever(interval time.Duration) {
 // ProcessProject - analyze a single project
 func (a *Analyzer) ProcessProject(config *GitConfig) error {
 	start := time.Now()
-	modules, err := a.analyzeProject(config)
+	main, dependencies, err := a.analyzeProject(config)
 	if err != nil {
 		a.metrics.Status.WithLabelValues(config.URL).Set(float64(0))
 		a.metrics.Duration.Set(time.Now().Sub(start).Seconds())
 		return err
 	}
-	main, dependencies := a.extractModule(modules)
 	a.writeMetrics(config, main, dependencies)
 	a.metrics.Status.WithLabelValues(config.URL).Set(float64(1))
 	a.metrics.Duration.Set(time.Now().Sub(start).Seconds())
 	return nil
 }
 
-func (a *Analyzer) writeMetrics(config *GitConfig, main ModulePublic, deps []ModulePublic) {
+func (a *Analyzer) writeMetrics(config *GitConfig, main *ModulePublic, deps []ModulePublic) {
 	config.Entry().Debug("writing statistics")
 	a.metrics.Info.WithLabelValues(main.Path, main.GoVersion).Set(1)
 	for _, cDep := range deps {
@@ -131,62 +130,53 @@ func (a *Analyzer) getModules(config *GitConfig, dir string, project string) ([]
 	return modules, nil
 }
 
-func (a *Analyzer) extractModule(mods []ModulePublic) (ModulePublic, []ModulePublic) {
+func (a *Analyzer) analyzeProject(config *GitConfig) (*ModulePublic, []ModulePublic, error) {
 	var main ModulePublic
-	res := []ModulePublic{}
-	for _, cModule := range mods {
-		if cModule.Main {
-			main = cModule
-		} else {
-			res = append(res, cModule)
-		}
-	}
-	return main, res
-}
+	deps := []ModulePublic{}
 
-func (a *Analyzer) analyzeProject(config *GitConfig) ([]ModulePublic, error) {
 	config.Entry().Info("analysing project")
-
 	dir, err := ioutil.TempDir("", "git-checkout")
 	if err != nil {
 		err = errors.Wrap(err, "unable to create temp directory")
 		config.Entry().Errorf(err.Error())
-		return nil, err
+		return nil, nil, err
 	}
 	defer os.RemoveAll(dir)
 
 	if err = a.getRepository(config, dir); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	rawModules, err := a.getModules(config, dir, "all")
+	modules, err := a.getModules(config, dir, "all")
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	for _, cModule := range rawModules {
-		config.Entry().Debugf("analyzing dependency: %s", cModule.Path)
-		if cModule.Update == nil {
+	for _, cModule := range modules {
+		if cModule.Main {
+			main = cModule
 			continue
 		}
-		nextVersion, isLast := a.getNextVersion(&cModule)
-		if isLast {
-			cModule.NextUpdate = cModule.Update
+		config.Entry().Debugf("analyzing dependency: %s", cModule.Path)
+		if cModule.Update == nil {
+			cModule.NextUpdate = nil
 		} else {
-			name := fmt.Sprintf("%s@%s", cModule.Path, nextVersion)
-			depModule, err := a.getModules(config, dir, name)
-			if err != nil {
-				return nil, err
+			cModule.NextUpdate = cModule.Update
+			nextVersion, isLast := a.getNextVersion(&cModule)
+			if !isLast {
+				name := fmt.Sprintf("%s@%s", cModule.Path, nextVersion)
+				depModules, err := a.getModules(config, dir, name)
+				if err != nil {
+					cModule.NextUpdate = nil
+					config.Entry().Warnf("could not analyze dependency %s, inaccurate deprecation date: %s", name, err)
+				} else {
+					cModule.NextUpdate = &(depModules[0])
+				}
 			}
-			cModule.NextUpdate = &depModule[0]
 		}
-		config.Entry().Debugf("current: %s, latest: %s, next: %s",
-			cModule.Version,
-			cModule.Update.Version,
-			cModule.NextUpdate.Version,
-		)
+		deps = append(deps, cModule)
 	}
-	return rawModules, nil
+	return &main, deps, nil
 }
 
 func (a *Analyzer) getNextVersion(module *ModulePublic) (string, bool) {
