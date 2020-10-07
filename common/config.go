@@ -24,6 +24,7 @@ type LogConfig struct {
 type GitConfig struct {
 	URL  string   `yaml:"url"`
 	Auth *GitAuth `yaml:"auth"`
+	Dir  string
 }
 
 // GitAuth -

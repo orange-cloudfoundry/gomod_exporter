@@ -135,19 +135,22 @@ func (a *Analyzer) analyzeProject(config *GitConfig) (*ModulePublic, []ModulePub
 	deps := []ModulePublic{}
 
 	config.Entry().Info("analysing project")
-	dir, err := ioutil.TempDir("", "git-checkout")
-	if err != nil {
-		err = errors.Wrap(err, "unable to create temp directory")
-		config.Entry().Errorf(err.Error())
-		return nil, nil, err
-	}
-	defer os.RemoveAll(dir)
 
-	if err = a.getRepository(config, dir); err != nil {
-		return nil, nil, err
+	if config.Dir == "" {
+		dir, err := ioutil.TempDir("", "git-checkout")
+		if err != nil {
+			err = errors.Wrap(err, "unable to create temp directory")
+			config.Entry().Errorf(err.Error())
+			return nil, nil, err
+		}
+		defer os.RemoveAll(dir)
+		if err = a.getRepository(config, dir); err != nil {
+			return nil, nil, err
+		}
+		config.Dir = dir
 	}
 
-	modules, err := a.getModules(config, dir, "all")
+	modules, err := a.getModules(config, config.Dir, "all")
 	if err != nil {
 		return nil, nil, err
 	}
@@ -165,7 +168,7 @@ func (a *Analyzer) analyzeProject(config *GitConfig) (*ModulePublic, []ModulePub
 			nextVersion, isLast := a.getNextVersion(&cModule)
 			if !isLast {
 				name := fmt.Sprintf("%s@%s", cModule.Path, nextVersion)
-				depModules, err := a.getModules(config, dir, name)
+				depModules, err := a.getModules(config, config.Dir, name)
 				if err != nil {
 					cModule.NextUpdate = nil
 					config.Entry().Warnf("could not analyze dependency %s, inaccurate deprecation date: %s", name, err)

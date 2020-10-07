@@ -25,6 +25,7 @@ func (c *Config) Validate() error {
 func NewConfig() *Config {
 	project := common.GitConfig{
 		URL: *projectURL,
+		Dir: *projectDir,
 	}
 	if projectUsername != nil && projectPassword != nil {
 		project.Auth = &common.GitAuth{
