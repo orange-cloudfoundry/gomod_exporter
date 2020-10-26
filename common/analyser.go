@@ -183,6 +183,10 @@ func (a *Analyzer) analyzeProject(config *GitConfig) (*ModulePublic, []ModulePub
 }
 
 func (a *Analyzer) getNextVersion(module *ModulePublic) (string, bool) {
+	if len(module.Versions) == 0 {
+		return module.Update.Version, true
+	}
+
 	current := module.Version
 	for cIdx, cVersion := range module.Versions {
 		if semver.Compare(cVersion, current) > 0 {
