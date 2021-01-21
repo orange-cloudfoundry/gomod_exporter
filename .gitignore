@@ -3,3 +3,4 @@ config.yml
 exporter/exporter
 pusher/pusher
 .build/
+dist/
