@@ -1,11 +1,9 @@
 project_name: gomod_exporter
 
 builds:
-  -
-    &template
-    id: pusher
-    dir: pusher
+  - id: binary
     binary: gomod_pusher
+    dir: .
     env:
       - CGO_ENABLED=0
     ldflags:
@@ -21,11 +19,6 @@ builds:
       - darwin
     goarch:
       - amd64
-  -
-    <<: *template
-    id: exporter
-    dir: exporter
-    binary: gomod_exporter
 
 archives:
   - id: archives
@@ -35,14 +28,13 @@ archives:
     format: "tar.gz"
     name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
     wrap_in_directory: true
-    files:
-      - LICENSE*
-      - README*
-      - CHANGELOG*
-      - docs/*
-      - assets/*
-      - static/*
-      - templates/*
+  - id: archives-zip
+    builds:
+      - pusher
+      - exporter
+    format: "zip"
+    name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+    wrap_in_directory: true
 
 checksum:
   name_template: checksums.txt
