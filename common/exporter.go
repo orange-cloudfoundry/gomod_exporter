@@ -9,6 +9,7 @@ import (
 type Metrics struct {
 	Info       *prometheus.GaugeVec
 	Deprecated *prometheus.GaugeVec
+	Replaced   *prometheus.GaugeVec
 	Status     *prometheus.GaugeVec
 	Duration   prometheus.Gauge
 	Registry   *prometheus.Registry
@@ -33,6 +34,14 @@ func NewMetrics(ns string) *Metrics {
 			},
 			[]string{"module", "dependency", "type", "current", "latest"},
 		),
+		Replaced: promauto.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: ns,
+				Name:      "replaced",
+				Help:      "Give information about module replacements",
+			},
+			[]string{"module", "dependency", "type", "replacement", "version"},
+		),
 		Status: promauto.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: ns,
@@ -53,6 +62,7 @@ func NewMetrics(ns string) *Metrics {
 
 	res.Registry.Register(res.Info)
 	res.Registry.Register(res.Deprecated)
+	res.Registry.Register(res.Replaced)
 	res.Registry.Register(res.Status)
 	res.Registry.Register(res.Duration)
 	return res

@@ -47,21 +47,37 @@ func (a *Analyzer) RunForever(interval time.Duration) {
 // ProcessProject - analyze a single project
 func (a *Analyzer) ProcessProject(config *GitConfig) error {
 	start := time.Now()
-	main, dependencies, err := a.analyzeProject(config)
+	main, dependencies, replaces, err := a.analyzeProject(config)
 	if err != nil {
 		a.metrics.Status.WithLabelValues(config.URL).Set(float64(0))
 		a.metrics.Duration.Set(time.Now().Sub(start).Seconds())
 		return err
 	}
-	a.writeMetrics(config, main, dependencies)
+	a.writeMetrics(config, main, dependencies, replaces)
 	a.metrics.Status.WithLabelValues(config.URL).Set(float64(1))
 	a.metrics.Duration.Set(time.Now().Sub(start).Seconds())
 	return nil
 }
 
-func (a *Analyzer) writeMetrics(config *GitConfig, main *ModulePublic, deps []ModulePublic) {
+func (a *Analyzer) writeMetrics(
+	config *GitConfig,
+	main *ModulePublic,
+	deps []ModulePublic,
+	replaces []ModulePublic,
+) {
 	config.Entry().Debug("writing statistics")
 	a.metrics.Info.WithLabelValues(main.Path, main.GoVersion).Set(1)
+
+	for _, cDep := range replaces {
+		mType := "direct"
+		if cDep.Indirect {
+			mType = "indirect"
+		}
+		a.metrics.Replaced.WithLabelValues(
+			main.Path, cDep.Path, mType, cDep.Replace.Path, cDep.Replace.Version,
+		).Set(float64(1))
+	}
+
 	for _, cDep := range deps {
 		mValue := float64(0)
 		mLatestVersion := cDep.Version
@@ -130,9 +146,10 @@ func (a *Analyzer) getModules(config *GitConfig, dir string, project string) ([]
 	return modules, nil
 }
 
-func (a *Analyzer) analyzeProject(config *GitConfig) (*ModulePublic, []ModulePublic, error) {
+func (a *Analyzer) analyzeProject(config *GitConfig) (*ModulePublic, []ModulePublic, []ModulePublic, error) {
 	var main ModulePublic
 	deps := []ModulePublic{}
+	replaces := []ModulePublic{}
 
 	config.Entry().Info("analysing project")
 
@@ -141,18 +158,18 @@ func (a *Analyzer) analyzeProject(config *GitConfig) (*ModulePublic, []ModulePub
 		if err != nil {
 			err = errors.Wrap(err, "unable to create temp directory")
 			config.Entry().Errorf(err.Error())
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
 		defer os.RemoveAll(dir)
 		if err = a.getRepository(config, dir); err != nil {
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
 		config.Dir = dir
 	}
 
 	modules, err := a.getModules(config, config.Dir, "all")
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	for _, cModule := range modules {
@@ -160,6 +177,12 @@ func (a *Analyzer) analyzeProject(config *GitConfig) (*ModulePublic, []ModulePub
 			main = cModule
 			continue
 		}
+
+		if cModule.Replace != nil {
+			replaces = append(replaces, cModule)
+			cModule = *cModule.Replace
+		}
+
 		config.Entry().Debugf("analyzing dependency: %s", cModule.Path)
 		if cModule.Update == nil {
 			cModule.NextUpdate = nil
@@ -179,7 +202,7 @@ func (a *Analyzer) analyzeProject(config *GitConfig) (*ModulePublic, []ModulePub
 		}
 		deps = append(deps, cModule)
 	}
-	return &main, deps, nil
+	return &main, deps, replaces, nil
 }
 
 func (a *Analyzer) getNextVersion(module *ModulePublic) (string, bool) {
