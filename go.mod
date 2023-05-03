@@ -6,7 +6,7 @@ require (
 	github.com/alecthomas/kingpin/v2 v2.3.2
 	github.com/gorilla/mux v1.8.0
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.15.0
+	github.com/prometheus/client_golang v1.15.1
 	github.com/prometheus/common v0.42.0
 	github.com/sirupsen/logrus v1.9.0
 	golang.org/x/mod v0.10.0
