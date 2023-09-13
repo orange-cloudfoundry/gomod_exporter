@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 
 	log "github.com/sirupsen/logrus"
@@ -84,7 +83,7 @@ func (c *BaseConfig) Validate() error {
 
 // LoadConfig - Creates and validates config from given reader
 func LoadConfig(file io.Reader, config Config) error {
-	content, err := ioutil.ReadAll(file)
+	content, err := io.ReadAll(file)
 	if err != nil {
 		log.Fatalf("unable to read configuration file : %s", err)
 		return err
