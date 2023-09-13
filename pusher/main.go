@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/orange-cloudfoundry/gomod_exporter/common"
 	"github.com/prometheus/client_golang/prometheus/push"
 	"github.com/prometheus/common/expfmt"
 	"github.com/prometheus/common/version"
 	log "github.com/sirupsen/logrus"
-	"github.com/alecthomas/kingpin/v2"
 )
 
 var (

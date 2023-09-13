@@ -1,12 +1,12 @@
 package main
 
 import (
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/gorilla/mux"
 	"github.com/orange-cloudfoundry/gomod_exporter/common"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/version"
 	log "github.com/sirupsen/logrus"
-	"github.com/alecthomas/kingpin/v2"
 	"net/http"
 )
 

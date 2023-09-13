@@ -3,7 +3,6 @@ package common
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
@@ -154,7 +153,7 @@ func (a *Analyzer) analyzeProject(config *GitConfig) (*ModulePublic, []ModulePub
 	config.Entry().Info("analysing project")
 
 	if config.Dir == "" {
-		dir, err := ioutil.TempDir("", "git-checkout")
+		dir, err := os.MkdirTemp("", "git-checkout")
 		if err != nil {
 			err = errors.Wrap(err, "unable to create temp directory")
 			config.Entry().Errorf(err.Error())
@@ -213,7 +212,7 @@ func (a *Analyzer) getNextVersion(module *ModulePublic) (string, bool) {
 	current := module.Version
 	for cIdx, cVersion := range module.Versions {
 		if semver.Compare(cVersion, current) > 0 {
-			isLast := (cIdx == (len(module.Versions) - 1))
+			isLast := cIdx == (len(module.Versions) - 1)
 			return cVersion, isLast
 		}
 	}
