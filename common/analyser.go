@@ -212,7 +212,7 @@ func (a *Analyzer) getNextVersion(module *ModulePublic) (string, bool) {
 	current := module.Version
 	for cIdx, cVersion := range module.Versions {
 		if semver.Compare(cVersion, current) > 0 {
-			isLast := (cIdx == (len(module.Versions) - 1))
+			isLast := cIdx == (len(module.Versions) - 1)
 			return cVersion, isLast
 		}
 	}
