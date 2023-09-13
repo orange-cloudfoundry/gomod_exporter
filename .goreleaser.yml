@@ -1,8 +1,7 @@
 project_name: gomod_exporter
 
 builds:
-  -
-    &template
+  - &template
     id: pusher
     dir: pusher
     binary: gomod_pusher
