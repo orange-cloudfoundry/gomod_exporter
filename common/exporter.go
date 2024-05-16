@@ -3,6 +3,7 @@ package common
 import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	log "github.com/sirupsen/logrus"
 )
 
 // Metrics - hold metrics and initialized registry
@@ -60,10 +61,20 @@ func NewMetrics(ns string) *Metrics {
 		Registry: prometheus.NewRegistry(),
 	}
 
-	res.Registry.Register(res.Info)
-	res.Registry.Register(res.Deprecated)
-	res.Registry.Register(res.Replaced)
-	res.Registry.Register(res.Status)
-	res.Registry.Register(res.Duration)
+	if err := res.Registry.Register(res.Info); err != nil {
+		log.Errorf("unable to register info metric: %s", err)
+	}
+	if err := res.Registry.Register(res.Deprecated); err != nil {
+		log.Errorf("unable to register deprecated metric: %s", err)
+	}
+	if err := res.Registry.Register(res.Replaced); err != nil {
+		log.Errorf("unable to register replaced metric: %s", err)
+	}
+	if err := res.Registry.Register(res.Status); err != nil {
+		log.Errorf("unable to register status metric: %s", err)
+	}
+	if err := res.Registry.Register(res.Duration); err != nil {
+		log.Errorf("unable to register duration metric: %s", err)
+	}
 	return res
 }

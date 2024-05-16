@@ -35,9 +35,11 @@ func (a *Analyzer) RunForever(interval time.Duration) {
 			log.Infof("running full analyze")
 			start := time.Now()
 			for _, cProject := range a.config.Projects {
-				a.ProcessProject(&cProject)
+				if err := a.ProcessProject(&cProject); err != nil {
+					log.Errorf("error processing project: %v", err)
+				}
 			}
-			a.metrics.Duration.Set(time.Now().Sub(start).Seconds())
+			a.metrics.Duration.Set(time.Since(start).Seconds())
 			time.Sleep(interval)
 		}
 	}()
@@ -49,12 +51,12 @@ func (a *Analyzer) ProcessProject(config *GitConfig) error {
 	main, dependencies, replaces, err := a.analyzeProject(config)
 	if err != nil {
 		a.metrics.Status.WithLabelValues(config.URL).Set(float64(0))
-		a.metrics.Duration.Set(time.Now().Sub(start).Seconds())
+		a.metrics.Duration.Set(time.Since(start).Seconds())
 		return err
 	}
 	a.writeMetrics(config, main, dependencies, replaces)
 	a.metrics.Status.WithLabelValues(config.URL).Set(float64(1))
-	a.metrics.Duration.Set(time.Now().Sub(start).Seconds())
+	a.metrics.Duration.Set(time.Since(start).Seconds())
 	return nil
 }
 
@@ -88,7 +90,7 @@ func (a *Analyzer) writeMetrics(
 			mValue = 1000.0
 			mLatestVersion = cDep.Update.Version
 			if cDep.Time != nil && cDep.NextUpdate != nil && cDep.NextUpdate.Time != nil {
-				mValue = time.Now().Sub(*cDep.NextUpdate.Time).Hours() / 24.0
+				mValue = time.Since(*cDep.NextUpdate.Time).Hours() / 24.0
 			}
 		}
 		a.metrics.Deprecated.WithLabelValues(
