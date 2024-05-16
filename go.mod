@@ -1,6 +1,6 @@
 module github.com/orange-cloudfoundry/gomod_exporter
 
-go 1.21
+go 1.22.3
 
 require (
 	github.com/alecthomas/kingpin/v2 v2.4.0
