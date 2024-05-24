@@ -36,6 +36,8 @@ func main() {
 	config := NewConfig()
 	common.InitLogs(&config.BaseConfig)
 
+	var exitCode = 0
+
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{
 		InsecureSkipVerify: config.gwSkipSSL,
 	}
@@ -47,6 +49,7 @@ func main() {
 	if err := analyzer.ProcessProject(&project); err != nil {
 		log.Warnf("unable to analyze project: %s", err)
 		log.Warnf("failure will be reported in pushed metrics")
+		exitCode = 1
 	}
 
 	if *fake {
@@ -62,7 +65,7 @@ func main() {
 				os.Exit(1)
 			}
 		}
-		os.Exit(0)
+		os.Exit(exitCode)
 	}
 
 	pusher.Gatherer(metrics.Registry)
@@ -71,4 +74,5 @@ func main() {
 		log.Errorf("unable to push data to gateway: %s", err)
 		os.Exit(1)
 	}
+	os.Exit(exitCode)
 }
