@@ -52,7 +52,3 @@ func NewConfig() *Config {
 
 	return config
 }
-
-// Local Variables:
-// ispell-local-dictionary: "american"
-// End:

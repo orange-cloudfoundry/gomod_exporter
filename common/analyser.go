@@ -220,7 +220,3 @@ func (a *Analyzer) getNextVersion(module *ModulePublic) (string, bool) {
 	}
 	return current, false
 }
-
-// Local Variables:
-// ispell-local-dictionary: "american"
-// End:

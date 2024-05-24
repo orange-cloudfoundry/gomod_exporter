@@ -88,7 +88,3 @@ func NewConfig(file io.Reader) *Config {
 	}
 	return &config
 }
-
-// Local Variables:
-// ispell-local-dictionary: "american"
-// End:

@@ -35,7 +35,3 @@ func main() {
 	log.Infof("serving http on %s", config.Web.Listen)
 	panic(http.ListenAndServe(config.Web.Listen, router))
 }
-
-// Local Variables:
-// ispell-local-dictionary: "american"
-// End:

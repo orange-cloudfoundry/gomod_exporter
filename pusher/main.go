@@ -72,7 +72,3 @@ func main() {
 		os.Exit(1)
 	}
 }
-
-// Local Variables:
-// ispell-local-dictionary: "american"
-// End:

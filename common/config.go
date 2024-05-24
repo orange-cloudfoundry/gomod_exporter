@@ -101,7 +101,3 @@ func LoadConfig(file io.Reader, config Config) error {
 	}
 	return nil
 }
-
-// Local Variables:
-// ispell-local-dictionary: "american"
-// End:
