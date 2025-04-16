@@ -45,7 +45,7 @@ func main() {
 	analyzer := common.NewAnalyzer(&config.BaseConfig, metrics)
 	pusher := push.New(config.gwURL, config.metricJobName)
 
-	project := config.BaseConfig.Projects[0]
+	project := config.Projects[0]
 	if err := analyzer.ProcessProject(&project); err != nil {
 		log.Warnf("unable to analyze project: %s", err)
 		log.Warnf("failure will be reported in pushed metrics")

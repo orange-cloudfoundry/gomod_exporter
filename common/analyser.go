@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/orange-cloudfoundry/gomod_exporter/utils"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/mod/semver"
@@ -161,7 +162,7 @@ func (a *Analyzer) analyzeProject(config *GitConfig) (*ModulePublic, []ModulePub
 			config.Entry().Errorf("%s", err.Error())
 			return nil, nil, nil, err
 		}
-		defer os.RemoveAll(dir)
+		defer utils.RemoveDir(dir)
 		if err = a.getRepository(config, dir); err != nil {
 			return nil, nil, nil, err
 		}
