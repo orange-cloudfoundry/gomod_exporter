@@ -112,7 +112,7 @@ func (a *Analyzer) getRepository(config *GitConfig, dir string) error {
 	})
 	if err != nil {
 		err = errors.Wrapf(err, "unable to checkout")
-		config.Entry().Errorf(err.Error())
+		config.Entry().Errorf("%s", err.Error())
 		return err
 	}
 
@@ -126,10 +126,10 @@ func (a *Analyzer) getModules(config *GitConfig, dir string, project string) ([]
 	content, err := cmd.Output()
 	if err != nil {
 		if exerr, ok := err.(*exec.ExitError); ok {
-			config.Entry().Errorf(string(exerr.Stderr))
+			config.Entry().Errorf("%s", string(exerr.Stderr))
 		}
 		err = errors.Wrap(err, "unable to run go analysis")
-		config.Entry().Errorf(err.Error())
+		config.Entry().Errorf("%s", err.Error())
 		return nil, err
 	}
 
@@ -140,7 +140,7 @@ func (a *Analyzer) getModules(config *GitConfig, dir string, project string) ([]
 	err = json.Unmarshal([]byte(jsonStr), &modules)
 	if err != nil {
 		err = errors.Wrap(err, "unable to parse go list output")
-		config.Entry().Errorf(err.Error())
+		config.Entry().Errorf("%s", err.Error())
 		return nil, err
 	}
 
@@ -158,7 +158,7 @@ func (a *Analyzer) analyzeProject(config *GitConfig) (*ModulePublic, []ModulePub
 		dir, err := os.MkdirTemp("", "git-checkout")
 		if err != nil {
 			err = errors.Wrap(err, "unable to create temp directory")
-			config.Entry().Errorf(err.Error())
+			config.Entry().Errorf("%s", err.Error())
 			return nil, nil, nil, err
 		}
 		defer os.RemoveAll(dir)
