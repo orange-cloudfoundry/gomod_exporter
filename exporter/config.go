@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/orange-cloudfoundry/gomod_exporter/common"
 	"io"
 	"os"
 	"time"
+
+	"github.com/orange-cloudfoundry/gomod_exporter/common"
 )
 
 // ExporterConfig -
@@ -18,13 +19,13 @@ type ExporterConfig struct {
 }
 
 func (c *ExporterConfig) validate() error {
-	if 0 == len(c.Path) {
+	if len(c.Path) == 0 {
 		c.Path = "/metrics"
 	}
-	if 0 == len(c.Namespace) {
+	if len(c.Namespace) == 0 {
 		c.Path = "gomod"
 	}
-	if 0 == len(c.Interval) {
+	if len(c.Interval) == 0 {
 		c.Interval = "24h"
 	}
 	val, err := time.ParseDuration(c.Interval)
@@ -43,15 +44,15 @@ type WebConfig struct {
 }
 
 func (c *WebConfig) validate() error {
-	if 0 == len(c.Listen) {
+	if len(c.Listen) == 0 {
 		c.Listen = ":23352"
 	}
-	if 0 != len(c.SSLKeyPath) {
+	if len(c.SSLKeyPath) != 0 {
 		if _, err := os.Stat(c.SSLKeyPath); err != nil {
 			return fmt.Errorf("invalid configuration web.ssl_key: file not found")
 		}
 	}
-	if 0 != len(c.SSLCertPath) {
+	if len(c.SSLCertPath) != 0 {
 		if _, err := os.Stat(c.SSLCertPath); err != nil {
 			return fmt.Errorf("invalid configuration web.ssl_cert: file not found")
 		}
