@@ -9,7 +9,7 @@ require (
 	github.com/prometheus/client_golang v1.23.2
 	github.com/prometheus/common v0.66.1
 	github.com/sirupsen/logrus v1.9.3
-	golang.org/x/mod v0.27.0
+	golang.org/x/mod v0.28.0
 	gopkg.in/src-d/go-git.v4 v4.13.1
 	gopkg.in/yaml.v3 v3.0.1
 )
