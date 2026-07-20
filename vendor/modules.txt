@@ -43,8 +43,8 @@ github.com/munnerz/goautoneg
 # github.com/pkg/errors v0.9.1
 ## explicit
 github.com/pkg/errors
-# github.com/prometheus/client_golang v1.23.2
-## explicit; go 1.23.0
+# github.com/prometheus/client_golang v1.24.0
+## explicit; go 1.25.0
 github.com/prometheus/client_golang/internal/github.com/golang/gddo/httputil
 github.com/prometheus/client_golang/internal/github.com/golang/gddo/httputil/header
 github.com/prometheus/client_golang/prometheus
@@ -61,13 +61,11 @@ github.com/prometheus/client_model/go
 github.com/prometheus/common/expfmt
 github.com/prometheus/common/model
 github.com/prometheus/common/version
-# github.com/prometheus/procfs v0.21.0
+# github.com/prometheus/procfs v0.21.1
 ## explicit; go 1.25.0
 github.com/prometheus/procfs
 github.com/prometheus/procfs/internal/fs
 github.com/prometheus/procfs/internal/util
-# github.com/rogpeppe/go-internal v1.15.0
-## explicit; go 1.25
 # github.com/sergi/go-diff v1.4.0
 ## explicit; go 1.13
 github.com/sergi/go-diff/diffmatchpatch
@@ -114,7 +112,7 @@ golang.org/x/mod/semver
 golang.org/x/net/context
 golang.org/x/net/internal/socks
 golang.org/x/net/proxy
-# golang.org/x/sys v0.46.0
+# golang.org/x/sys v0.47.0
 ## explicit; go 1.25.0
 golang.org/x/sys/cpu
 golang.org/x/sys/unix
