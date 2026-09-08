@@ -1,6 +1,6 @@
 module github.com/orange-cloudfoundry/gomod_exporter
 
-go 1.26
+go 1.26.0
 
 require (
 	github.com/alecthomas/kingpin/v2 v2.4.0
@@ -9,7 +9,7 @@ require (
 	github.com/prometheus/client_golang v1.24.1
 	github.com/prometheus/common v0.71.0
 	github.com/sirupsen/logrus v1.10.2
-	golang.org/x/mod v0.40.0
+	golang.org/x/mod v0.41.0
 	gopkg.in/src-d/go-git.v4 v4.13.1
 	gopkg.in/yaml.v3 v3.0.1
 )
