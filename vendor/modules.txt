@@ -40,7 +40,7 @@ github.com/mitchellh/go-homedir
 # github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822
 ## explicit
 github.com/munnerz/goautoneg
-# github.com/pandatix/go-abnf v0.5.3
+# github.com/pandatix/go-abnf v0.5.5
 ## explicit; go 1.26.0
 github.com/pandatix/go-abnf
 # github.com/pkg/errors v0.9.1
@@ -59,7 +59,7 @@ github.com/prometheus/client_golang/prometheus/push
 # github.com/prometheus/client_model v0.6.3
 ## explicit; go 1.23
 github.com/prometheus/client_model/go
-# github.com/prometheus/common v0.73.1
+# github.com/prometheus/common v0.74.0
 ## explicit; go 1.26.0
 github.com/prometheus/common/expfmt
 github.com/prometheus/common/model
@@ -110,7 +110,7 @@ golang.org/x/crypto/ssh/knownhosts
 # golang.org/x/mod v0.43.0
 ## explicit; go 1.26.0
 golang.org/x/mod/semver
-# golang.org/x/net v0.61.0
+# golang.org/x/net v0.62.0
 ## explicit; go 1.26.0
 golang.org/x/net/context
 golang.org/x/net/internal/socks
